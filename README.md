@@ -4,7 +4,7 @@
 
 ### Клонирование репозитория
 
-```git clone https://gitverse.ru/YaroslavIgoshin/Arduino_sketch_for_I2C_TCS34725_LCD1602```
+```git clone https://gitverse.ru/YaroslavIgoshin/Arduino_sketch_for_I2C_TCS34725_LCD1602.git```
 
 ### Сборка:
 
