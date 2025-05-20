@@ -1,0 +1,40 @@
+/* Author - Igoshin Yaroslav Evgenivich.
+Email: yaroslav.evg-ch@mail.ru */
+#include <Wire.h>               // Must have lib
+#include <LiquidCrystal_I2C.h>  // Display 1602 lib
+#include "Adafruit_TCS34725.h"  // RGB Color Sensor lib
+
+Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_101MS, TCS34725_GAIN_1X); // Sensor setup (24, 101, 154, 614, 700 MS)
+
+LiquidCrystal_I2C lcd(0x27,16,2);  // Display setup
+
+void setup(void)
+{
+  Serial.begin(9600);
+  if (tcs.begin()) {
+    Serial.println("Ok");   // Writing Ok if signal is on
+  } else {
+    Serial.println("Err");  // Writing Error if signal is off
+    while (1);
+  }
+  lcd.init();       // Display Initialisation
+  lcd.backlight();  // Switching on backlight
+}
+void loop(void)
+{
+  uint16_t r, g, b, c;
+  tcs.getRawData(&r, &g, &b, &c);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("R");
+  lcd.setCursor(2, 0);
+  lcd.print(r, DEC);
+  lcd.setCursor(7, 0);
+  lcd.print("G");
+  lcd.setCursor(9, 0);
+  lcd.print(g, DEC);
+  lcd.setCursor(0, 1);
+  lcd.print("B");
+  lcd.setCursor(2, 1);
+  lcd.print(b, DEC);
+}
