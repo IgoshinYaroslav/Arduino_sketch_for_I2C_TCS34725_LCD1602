@@ -1,0 +1,74 @@
+/* Author - Igoshin Yaroslav Evgenivich.
+Email: yaroslav.evg-ch@mail.ru */
+#include <Wire.h>               // Must have lib
+#include <LiquidCrystal_I2C.h>  // Display 1602 lib
+#include "Adafruit_TCS34725.h"  // RGB Color Sensor lib
+
+Adafruit_TCS34725 tcs = Adafruit_TCS34725(TCS34725_INTEGRATIONTIME_101MS, TCS34725_GAIN_1X); // Sensor setup
+
+LiquidCrystal_I2C lcd(0x27,16,2);  // Display setup
+
+// Калибровочные коэффициенты (должны быть определены экспериментально)
+const float a0 = 0.85;  // Базовый коэффициент
+const float a1 = -0.12; // Коэффициент для красного канала
+const float a2 = -0.08; // Коэффициент для зеленого канала
+const float a3 = -0.05; // Коэффициент для синего канала
+const float a4 = 0.0001; // Коэффициент для освещенности
+
+void setup(void)
+{
+  Serial.begin(9600);
+  if (tcs.begin()) {
+    Serial.println("Ok");   // Writing Ok if signal is on
+  } else {
+    Serial.println("Err");  // Writing Error if signal is off
+    while (1);
+  }
+  lcd.init();       // Display Initialisation
+  lcd.backlight();  // Switching on backlight
+  
+  // Вывод заголовка на LCD
+  lcd.setCursor(0, 0);
+  lcd.print("Emissivity:");
+}
+
+float calculateEmissivity(uint16_t r, uint16_t g, uint16_t b, uint16_t c)
+{
+  // Нормализация значений
+  float sum = r + g + b;
+  float r_norm = r / sum;
+  float g_norm = g / sum;
+  float b_norm = b / sum;
+  
+  // Расчет излучательной способности по калибровочной формуле
+  float emissivity = a0 + a1*r_norm + a2*g_norm + a3*b_norm + a4*c;
+  
+  // Ограничение значений в диапазоне 0.05-0.95
+  emissivity = constrain(emissivity, 0.05, 0.95);
+  
+  return emissivity;
+}
+
+void loop(void)
+{
+  uint16_t r, g, b, c;
+  tcs.getRawData(&r, &g, &b, &c);
+  
+  // Расчет излучательной способности
+  float emissivity = calculateEmissivity(r, g, b, c);
+  
+  // Вывод на LCD
+  lcd.setCursor(0, 1);
+  lcd.print("    "); // Очистка предыдущего значения
+  lcd.setCursor(0, 1);
+  lcd.print(emissivity, 3); // Вывод с 3 знаками после запятой
+  
+  // Вывод в Serial для отладки
+  Serial.print("RGB: ");
+  Serial.print(r); Serial.print(", ");
+  Serial.print(g); Serial.print(", ");
+  Serial.print(b); Serial.print(" | Emissivity: ");
+  Serial.println(emissivity, 5);
+  
+  delay(500); // Задержка между измерениями
+}
