@@ -6,6 +6,10 @@
 
 ```git clone https://gitverse.ru/YaroslavIgoshin/Arduino_sketch_for_I2C_TCS34725_LCD1602.git```
 
+или
+
+```git clone https://github.com/IgoshinYaroslav/Arduino_sketch_for_I2C_TCS34725_LCD1602.git```
+
 ### Сборка:
 
 * Arduino UNO R3
